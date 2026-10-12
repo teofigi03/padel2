@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matteo Figini</title>
+
+  <!-- Archivo Regular -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --fg: #f5f5f5;
+      --margin-x: 28px;
+      --margin-y: 25px;
+      --font-size: 14px; /* 11pt */
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Archivo", Arial, sans-serif;
+      font-size: var(--font-size);
+      font-weight: 400;
+      line-height: 1;
+      cursor: none;
+      user-select: none;
+    }
+
+    a, button {
+      cursor: none;
+    }
+
+    .site {
+      position: relative;
+      width: 100vw;
+      height: 100svh;
+      min-height: 320px;
+      padding: var(--margin-y) var(--margin-x);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .column {
+      position: relative;
+      height: 100%;
+    }
+
+    .item {
+      position: absolute;
+      color: var(--fg);
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: default;
+      transition: opacity 160ms ease;
+    }
+
+    .name,
+    .linkedin,
+    .email,
+    .instagram {
+      color: var(--fg);
+    }
+
+    .work {
+      color: #fff;
+    }
+
+    body.is-work-active .name {
+      color: #fff;
+    }
+
+    body.is-work-active .linkedin,
+    body.is-work-active .email,
+    body.is-work-active .instagram {
+      color: var(--muted);
+    }
+
+    .linkedin:hover,
+    .email:hover,
+    .instagram:hover {
+      color: var(--fg);
+    }
+
+    .item:hover {
+      opacity: 1;
+    }
+
+    .work-wrapper {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+    }
+
+    .work-projects {
+      margin-top: 2.8em;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.1em;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 160ms ease, visibility 160ms ease;
+    }
+
+    .work-wrapper.is-active .work-projects,
+    .work-projects:hover,
+    .work-projects:focus-within,
+    .work-wrapper.is-open .work-projects {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .project-link {
+      color: var(--fg);
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: var(--font-size);
+      line-height: 1.45;
+      letter-spacing: 0.01em;
+      text-align: right;
+      cursor: default;
+      transition: opacity 160ms ease;
+    }
+
+    .work-projects:hover .project-link {
+      color: var(--muted);
+    }
+
+    .work-projects .project-link:hover,
+    .work-projects .project-link:focus-visible {
+      color: var(--fg);
+      opacity: 1;
+    }
+
+    @media (pointer: coarse) {
+      .work-projects:hover .project-link {
+        color: var(--fg);
+      }
+    }
+
+    /* Colonna 1 */
+    .name {
+      top: 0;
+      left: 0;
+    }
+
+    .linkedin {
+      bottom: 0;
+      left: 0;
+    }
+
+    /* Colonna 2 */
+    .email {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Colonna 3 */
+    .work {
+      top: 0;
+      right: 0;
+    }
+
+    .instagram {
+      bottom: 0;
+      right: 0;
+    }
+
+    /* Cursore: 15px, con differenza/inversione del colore sottostante */
+    .cursor-dot {
+      position: fixed;
+      z-index: 9999;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      pointer-events: none;
+      mix-blend-mode: difference;
+      transform: translate(-50%, -50%);
+      left: -100px;
+      top: -100px;
+      will-change: left, top;
+    }
+
+    @media (max-width: 767px) {
+      :root {
+        --margin-x: 28px;
+        --margin-y: 25px;
+        --font-size: 14px;
+      }
+
+      .work-projects {
+        margin-top: 2.8em;
+      }
+    }
+
+    /* Da 480px in giù: telefoni piccoli */
+  @media (max-width: 480px) {
+  :root {
+    --margin-x: 25px;
+    --margin-y: 20px;
+    --font-size: 13px;
+  }
+
+  .work-projects {
+    margin-top: 2.5em;
+  }
+}
+
+    /* Su dispositivi touch non esiste un cursore da seguire */
+    @media (hover: none), (pointer: coarse) {
+      body {
+        cursor: auto;
+      }
+
+      .item {
+        cursor: default;
+      }
+
+      .cursor-dot {
+        display: none;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="./project-descriptions.css">
+  <script src="./project-descriptions.js" defer></script>
+</head>
+
+<body>
+  <main class="site">
+    <div class="column">
+      <a class="item name" href="./index.html">Matteo Figini</a>
+      <a class="item linkedin" href="#" aria-label="LinkedIn">Resume ↗&#xFE0E;</a>
+    </div>
+
+    <div class="column">
+      <a class="item email" href="mailto:ciao@matteofigini.com">ciao@matteofigini.com ↗&#xFE0E;</a>
+    </div>
+
+    <div class="column">
+      <div class="work-wrapper">
+        <a class="item work" href="#" aria-label="Work">Projects</a>
+        <nav class="work-projects" aria-label="Project list">
+          <a class="project-link" href="project-01.html">Behind Every Emotion</a>
+          <a class="project-link" href="project-02.html">Subito Sales Academy</a>
+          <a class="project-link" href="project-03.html">L’isola delle rose</a>
+          <a class="project-link" href="project-04.html">Montecatini Terme</a>
+          <a class="project-link" href="project-05.html">Pat Pat</a>
+          <a class="project-link" href="project-06.html">Jack e i fagioli magici</a>
+          <a class="project-link" href="project-07.html">InFamous Art</a>
+        </nav>
+      </div>
+      <a class="item instagram" href="#" aria-label="Instagram">Linkedin ↗&#xFE0E;</a>
+    </div>
+  </main>
+
+  <div class="cursor-dot" aria-hidden="true"></div>
+
+  <script>
+    const cursor = document.querySelector(".cursor-dot");
+    const workWrapper = document.querySelector(".work-wrapper");
+    const nameLink = document.querySelector(".name");
+    const workLink = document.querySelector(".work");
+    const isTouchDevice = window.matchMedia("(pointer: coarse), (max-width: 480px)").matches;
+    let isNameHovered = false;
+
+    let mouseX = -100;
+    let mouseY = -100;
+    let currentX = -100;
+    let currentY = -100;
+
+    window.addEventListener("mousemove", (event) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+    });
+
+    function updateWorkActiveState() {
+      const isActive = workWrapper.classList.contains("is-active");
+      const isOpen = workWrapper.classList.contains("is-open");
+      document.body.classList.toggle("is-work-active", isNameHovered || isActive || isOpen);
+    }
+
+    nameLink.addEventListener("mouseenter", () => {
+      if (!isTouchDevice && !document.body.classList.contains("is-navigating")) {
+        isNameHovered = true;
+        updateWorkActiveState();
+      }
+    });
+
+    nameLink.addEventListener("mouseleave", () => {
+      nameLink.classList.remove("prevent-hover");
+      document.body.classList.remove("is-navigating");
+      isNameHovered = false;
+      updateWorkActiveState();
+    });
+
+    nameLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      document.body.classList.remove("is-profile-active");
+      nameLink.setAttribute("aria-expanded", "false");
+
+      if (!isTouchDevice) {
+        nameLink.classList.add("prevent-hover");
+        document.body.classList.add("is-navigating");
+      }
+
+      isNameHovered = false;
+      updateWorkActiveState();
+    });
+
+    workLink.addEventListener("mouseenter", () => {
+      if (!isTouchDevice) {
+        workWrapper.classList.add("is-active");
+        updateWorkActiveState();
+      }
+    });
+
+    workWrapper.addEventListener("mouseleave", () => {
+      workWrapper.classList.remove("is-active");
+      updateWorkActiveState();
+    });
+
+    workLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (isTouchDevice) {
+        const isOpen = workWrapper.classList.contains("is-open");
+        workWrapper.classList.toggle("is-open", !isOpen);
+        workLink.setAttribute("aria-expanded", String(!isOpen));
+        updateWorkActiveState();
+      }
+    });
+
+    document.addEventListener("pointerdown", (event) => {
+      if (isTouchDevice && !workWrapper.contains(event.target)) {
+        workWrapper.classList.remove("is-open");
+        workLink.setAttribute("aria-expanded", "false");
+        updateWorkActiveState();
+      }
+    });
+
+    function animateCursor() {
+      currentX += (mouseX - currentX) * 0.11;
+      currentY += (mouseY - currentY) * 0.11;
+      cursor.style.left = currentX + "px";
+      cursor.style.top = currentY + "px";
+      requestAnimationFrame(animateCursor);
+    }
+
+    animateCursor();
+  </script>
+</body>
+</html>

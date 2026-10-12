@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pat Pat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --fg: #f5f5f5;
+      --margin-x: 28px;
+      --margin-y: 25px;
+      --font-size: 14px;
+      --media-count: 10;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+    body {
+      margin: 0;
+      min-height: calc(var(--media-count) * 100vh);
+      background: #000;
+      color: var(--fg);
+      font-family: "Archivo", Arial, sans-serif;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      cursor: none;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    body::-webkit-scrollbar,
+    html::-webkit-scrollbar { display: none; }
+    html { scrollbar-width: none; -ms-overflow-style: none; background: #000; }
+    a { color: #fff; text-decoration: none; cursor: none; }
+    .project-header {
+      position: fixed;
+      top: var(--margin-y);
+      left: var(--margin-x);
+      right: var(--margin-x);
+      z-index: 40;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      gap: 0;
+    }
+    .project-header a {
+      pointer-events: auto;
+      color: #fff;
+      mix-blend-mode: difference;
+      font-size: var(--font-size);
+      line-height: 1;
+      letter-spacing: 0.01em;
+      transition: opacity 160ms ease;
+    }
+    .project-name-link,
+    .project-work-link {
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: default;
+    }
+
+    .project-header .project-work-link {
+      color: #fff;
+      mix-blend-mode: normal;
+    }
+    .project-work-wrap {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+      pointer-events: auto;
+    }
+    .project-work-nav {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin-top: 2.8em;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.1em;
+      font-size: var(--font-size);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 160ms ease, visibility 160ms ease;
+    }
+    .project-work-wrap.is-active .project-work-nav,
+    .project-work-nav:hover,
+    .project-work-nav:focus-within,
+    .project-work-wrap.is-open .project-work-nav {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .project-link {
+      color: var(--fg);
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: var(--font-size);
+      line-height: 1.45;
+      letter-spacing: 0.01em;
+      text-align: right;
+      cursor: default;
+      transition: opacity 160ms ease;
+    }
+    .project-work-nav:hover .project-link {
+      color: var(--muted);
+    }
+    .project-work-nav .project-link:hover,
+    .project-work-nav .project-link:focus-visible {
+      color: var(--fg);
+      opacity: 1;
+    }
+    @media (pointer: coarse) {
+      .project-work-nav:hover .project-link { color: var(--fg); }
+    }
+    .project-stage {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #000;
+      transition: background 120ms ease;
+      z-index: 1;
+    }
+    .project-header a:hover,
+    .project-header a.work-trigger.is-active,
+    .project-header a.work-trigger:hover,
+    .project-name-link:hover,
+    body.is-name-hover .project-name-link,
+    .project-work-link:hover,
+    .project-work-wrap.is-active .project-work-link,
+    .project-work-wrap.is-open .project-work-link,
+    body.is-work-active .project-work-link { color: #fff; }
+    .project-page.is-work-hover .project-stage,
+    body.is-name-hover .project-stage { background: #000; }
+    .project-page.is-work-hover .media-item.is-active,
+    body.is-name-hover .media-item.is-active { opacity: 0; visibility: hidden; }
+    .project-contacts {
+      position: fixed;
+      bottom: var(--margin-y);
+      left: var(--margin-x);
+      right: var(--margin-x);
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: auto;
+    }
+    .project-contacts a {
+      color: #fff;
+      text-decoration: none;
+      font-size: var(--font-size);
+      line-height: 1;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+    .media-item {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .cursor-dot {
+      position: fixed;
+      z-index: 9999;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      left: -100px;
+      top: -100px;
+      will-change: left, top;
+    }
+    @media (hover: none), (pointer: coarse) {
+      body { cursor: auto; }
+      .cursor-dot { display: none; }
+    }
+    .media-item.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .media-item img,
+    .media-item video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      display: block;
+      background: #000;
+      filter: saturate(0.9) contrast(1.08);
+    }
+    .site.project-ui {
+      position: fixed; z-index: 40; inset: 0; width: 100vw; height: 100svh;
+      min-height: 320px; padding: var(--margin-y) var(--margin-x); display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)); background: transparent;
+      font-size: var(--font-size); font-weight: 400; line-height: 1;
+      pointer-events: none; transition: background 160ms ease;
+    }
+    body.is-work-active .site.project-ui { background: var(--bg); }
+    .column { position: relative; height: 100%; }
+    .item {
+      position: absolute; color: var(--fg); text-decoration: none; white-space: nowrap;
+      cursor: default; transition: opacity 160ms ease; pointer-events: auto;
+    }
+    .name, .linkedin, .email, .instagram { color: var(--fg); }
+    .work { color: #fff; }
+    body.is-work-active .linkedin,
+    body.is-work-active .email,
+    body.is-work-active .instagram { color: var(--muted); }
+    body.is-work-active .name { color: #fff; }
+    .linkedin:hover, .email:hover, .instagram:hover { color: var(--fg); }
+    .item:hover { opacity: 1; }
+    .work-wrapper {
+      position: absolute; top: 0; right: 0; display: flex; flex-direction: column;
+      align-items: flex-end; gap: 0; pointer-events: auto;
+    }
+    .work-projects {
+      margin-top: 2.8em; display: flex; flex-direction: column; align-items: flex-end;
+      gap: 0.1em; opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 160ms ease, visibility 160ms ease;
+    }
+    .work-wrapper.is-active .work-projects,
+    .work-projects:hover,
+    .work-projects:focus-within,
+    .work-wrapper.is-open .work-projects { opacity: 1; visibility: visible; pointer-events: auto; }
+    .project-link {
+      color: var(--fg); text-decoration: none; white-space: nowrap;
+      font-size: var(--font-size); line-height: 1.45; letter-spacing: 0.01em;
+      text-align: right; cursor: default; transition: opacity 160ms ease;
+      pointer-events: auto;
+    }
+    .work-projects:hover .project-link { color: var(--muted); }
+    .work-projects .project-link:hover,
+    .work-projects .project-link:focus-visible { color: var(--fg); opacity: 1; }
+    @media (pointer: coarse) {
+      .work-projects:hover .project-link { color: var(--fg); }
+    }
+    .name { top: 0; left: 0; }
+    .linkedin { bottom: 0; left: 0; }
+    .email { bottom: 0; left: 50%; transform: translateX(-50%); }
+    .work { top: 0; right: 0; }
+    .instagram { bottom: 0; right: 0; }
+    @media (max-width: 767px) {
+      :root { --margin-x: 28px; --margin-y: 25px; --font-size: 14px; }
+      .work-projects { margin-top: 2.8em; }
+    }
+    /* Da 480px in giù: telefoni piccoli */
+  @media (max-width: 480px) {
+  :root {
+    --margin-x: 25px;
+    --margin-y: 20px;
+    --font-size: 13px;
+  }
+
+  .work-projects {
+    margin-top: 2.5em;
+  }
+}
+    @media (hover: none), (pointer: coarse) {
+      .item { cursor: default; }
+    }
+  </style>
+  <link rel="stylesheet" href="project-descriptions.css">
+  <script src="project-descriptions.js" defer></script>
+</head>
+<body class="project-page">
+  <div class="site project-ui">
+    <div class="column">
+      <a class="item name" href="./index.html">Matteo Figini</a>
+      <a class="item linkedin" href="#" aria-label="LinkedIn">Resume ↗&#xFE0E;</a>
+    </div>
+    <div class="column">
+      <a class="item email" href="mailto:ciao@matteofigini.com">ciao@matteofigini.com ↗&#xFE0E;</a>
+    </div>
+    <div class="column">
+      <div class="work-wrapper">
+        <a class="item work" href="#" aria-label="Work">Projects</a>
+        <nav class="work-projects" aria-label="Project list">
+          <a class="project-link" href="project-01.html">Behind Every Emotion</a>
+          <a class="project-link" href="project-02.html">Subito Sales Academy</a>
+          <a class="project-link" href="project-03.html">L’isola delle rose</a>
+          <a class="project-link" href="project-04.html">Montecatini Terme</a>
+          <a class="project-link" href="project-05.html">Pat Pat</a>
+          <a class="project-link" href="project-06.html">Jack e i fagioli magici</a>
+          <a class="project-link" href="project-07.html">InFamous Art</a>
+        </nav>
+      </div>
+      <a class="item instagram" href="#" aria-label="Instagram">Linkedin ↗&#xFE0E;</a>
+    </div>
+  </div>
+  <main class="project-stage" aria-label="Pat Pat project gallery"></main>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <script>
+    const projectConfig = {
+      title: 'Pat Pat',
+      media: [
+        { type: 'image', src: './assets/project-05-01.jpg' },
+        { type: 'image', src: './assets/project-05-02.jpg' },
+        { type: 'image', src: './assets/project-05-03.jpg' },
+        { type: 'image', src: './assets/project-05-04.jpg' },
+        { type: 'video', src: './assets/project-05-video-01.mp4' },
+        { type: 'image', src: './assets/project-05-05.jpg' },
+        { type: 'image', src: './assets/project-05-06.jpg' },
+        { type: 'image', src: './assets/project-05-07.jpg' },
+        { type: 'image', src: './assets/project-05-08.jpg' },
+        { type: 'video', src: './assets/project-05-video-02.mp4' }
+      ]
+    };
+
+    document.documentElement.style.setProperty('--media-count', String(projectConfig.media.length));
+    const stage = document.querySelector('.project-stage');
+    stage.innerHTML = projectConfig.media.map((item, index) => {
+      const mediaMarkup = item.type === 'video'
+        ? `<video class="media-media" loop playsinline preload="auto" src="${item.src}"></video>`
+        : `<img class="media-media" src="${item.src}" alt="${projectConfig.title} placeholder ${index + 1}" />`;
+      return `<div class="media-item ${index === 0 ? 'is-active' : ''}" data-index="${index}">${mediaMarkup}</div>`;
+    }).join('');
+
+    const items = [...stage.querySelectorAll('.media-item')];
+    const videos = [...stage.querySelectorAll('video')];
+    let activeIndex = 0;
+
+    videos.forEach((video) => {
+      video.loop = true;
+      if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+        video.currentTime = 0;
+      } else {
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = 0;
+        }, { once: true });
+      }
+    });
+
+    function playVideoFromStart(video) {
+      video.loop = true;
+      const start = () => {
+        if (!video.closest('.media-item').classList.contains('is-active')) return;
+        video.currentTime = 0;
+        video.play().catch((error) => console.warn('Video playback failed:', error));
+      };
+
+      if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+        start();
+      } else {
+        video.addEventListener('loadedmetadata', start, { once: true });
+      }
+    }
+
+    function setActive(index) {
+      activeIndex = index;
+      items.forEach((item, i) => {
+        const isActive = i === index;
+        item.classList.toggle('is-active', isActive);
+        const media = item.querySelector('video, img');
+        if (media && media.tagName === 'VIDEO') {
+          if (isActive) {
+            playVideoFromStart(media);
+          } else {
+            media.pause();
+          }
+        }
+      });
+    }
+
+    setActive(0);
+
+    function updateFromScroll() {
+      const maxScroll = Math.max(document.body.scrollHeight - window.innerHeight, 1);
+      const ratio = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+      const nextIndex = Math.min(items.length - 1, Math.max(0, Math.round(ratio * (items.length - 1))));
+      if (nextIndex !== activeIndex) setActive(nextIndex);
+    }
+
+    const workWrapper = document.querySelector('.work-wrapper');
+    const nameLink = document.querySelector('.name');
+    const workLink = document.querySelector('.work');
+    const cursor = document.querySelector('.cursor-dot');
+    const isTouchDevice = window.matchMedia('(pointer: coarse), (max-width: 480px)').matches;
+    let isNameHovered = false;
+    let mouseX = -100;
+    let mouseY = -100;
+    let currentX = -100;
+    let currentY = -100;
+    let wheelAccumulator = 0;
+    const WHEEL_SENSITIVITY = 4;
+
+    function updateWorkActiveState() {
+      const isActive = workWrapper.classList.contains('is-active');
+      const isOpen = workWrapper.classList.contains('is-open');
+      document.body.classList.toggle('is-work-active', isNameHovered || isActive || isOpen);
+    }
+
+    nameLink.addEventListener('mouseenter', () => {
+      if (!isTouchDevice) {
+        isNameHovered = true;
+        updateWorkActiveState();
+      }
+    });
+
+    nameLink.addEventListener('mouseleave', () => {
+      isNameHovered = false;
+      updateWorkActiveState();
+    });
+
+    workLink.addEventListener('mouseenter', () => {
+      if (!isTouchDevice) {
+        workWrapper.classList.add('is-active');
+        updateWorkActiveState();
+      }
+    });
+
+    workWrapper.addEventListener('mouseleave', () => {
+      workWrapper.classList.remove('is-active');
+      updateWorkActiveState();
+    });
+
+    workLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (isTouchDevice) {
+        const isOpen = workWrapper.classList.contains('is-open');
+        workWrapper.classList.toggle('is-open', !isOpen);
+        workLink.setAttribute('aria-expanded', String(!isOpen));
+        updateWorkActiveState();
+      }
+    });
+
+    document.addEventListener('pointerdown', (event) => {
+      if (isTouchDevice && !workWrapper.contains(event.target)) {
+        workWrapper.classList.remove('is-open');
+        workLink.setAttribute('aria-expanded', 'false');
+        updateWorkActiveState();
+      }
+    });
+
+    window.addEventListener('wheel', (event) => {
+      wheelAccumulator += event.deltaY;
+      if (Math.abs(wheelAccumulator) < WHEEL_SENSITIVITY) return;
+
+      const direction = wheelAccumulator > 0 ? 1 : -1;
+      wheelAccumulator = 0;
+      const nextIndex = Math.min(items.length - 1, Math.max(0, activeIndex + direction));
+      if (nextIndex !== activeIndex) {
+        setActive(nextIndex);
+      }
+    }, { passive: true });
+
+    window.addEventListener('mousemove', (event) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+    });
+
+    function animateCursor() {
+      currentX += (mouseX - currentX) * 0.11;
+      currentY += (mouseY - currentY) * 0.11;
+      cursor.style.left = currentX + 'px';
+      cursor.style.top = currentY + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+
+    if (cursor) {
+      animateCursor();
+    }
+
+    updateFromScroll();
+  </script>
+</body>
+</html>
